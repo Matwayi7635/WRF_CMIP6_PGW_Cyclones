@@ -1,0 +1,254 @@
+&time_control
+run_days          = 0,
+run_hours         = 96,
+run_minutes       = 0,
+run_seconds       = 0,
+start_year        = 2019, 2019, 2019,
+start_month       = 04,  04,  04,
+start_day         = 22,  22,  22,
+start_hour        = 00,   00,  00,
+end_year          = 2019, 2019, 2019,
+end_month         = 04,   04,   04,
+end_day           = 27,  27,   27,
+end_hour          = 00,   00,   00,
+interval_seconds  = 21600,          ! 입력 경계치 자료 (wrfbdy)의 시간 간격 (초)
+input_from_file   = .true.,.true.,.true., ! 영역별 nested domain의 경계치 입력자료 사용 유무
+history_interval = 180, 60, 60,
+frames_per_outfile = 1000, 1000, 1000,
+restart           = .false.,        ! 이 실험이 restar인 경우 .true.
+restart_interval  = 7200,           ! restart 파일의 저장 간격 (분)
+io_form_history   = 2,              ! netCDF(2),PHD5(4),GRIB1(5),GRIB2(10),pnetCDF(11)
+io_form_restart   = 2,              ! 
+io_form_input     = 2,              ! 
+io_form_boundary  = 2,              ! 
+debug_level       = 0,              ! 디버그 정보 간격. 예) 50,100,200,300
+diag_print        = 0,              ! print out time series of model diagnostics
+                                        ! 0 = no print
+                                        ! 1 = 영역 평균 3시간 간격 기압 관련 자료 표출
+                                        ! 2 = 추가로 강우, 증발, 현열속, 잠열속 등 표출
+! SST 자료를 갱신할 경우 (sst_update=1 과 함께 사용):
+!auxinput4_inname  = "wrflowinp_d<domain>" ! 입력자료 파일 이름 형식
+!auxinput4_interval = 360            ! SST 갱신 간격 (분)
+!io_form_auxinput4 = 2               ! 2 = netCDF. V3.2에서 필요
+!nwp_diagnostics   = 0               ! 모델 적분 시에 검증을 할경우 1로 설정
+/
+
+&domains
+time_step         = 60,              ! 모델 적분 시간 간격 (초). 보통 dx(in km)의 6배보다 작게 설정
+time_step_fract_num = 0,             ! 시간간격을 초단위 이하로 설정할 경우 설정
+time_step_fract_den = 1,             ! 예) 시간간격을 60.3 으로 설정할 경우 :
+                                         !    time_step=60, fract_num=3, fract_den=10
+max_dom           = 3,               ! Domain의 갯수. 1 이면 nesting domain이 없음을 의미
+    !s_we             = 1,   1,          ! 영역별 동서방향의 시작 격자점
+e_we              = 226,580,1102,    !341, 331,        ! 영역별 동서방향의 끝 격자점 (해상도)
+    !s_sn             = 1,   1,          ! 영역별 남북방향의 시작 격자점
+e_sn              = 196,460,1102,    !341, 331,        ! 영역별 남북방향의 끝 격자점 (해상도)
+    !s_vert           = 1,   1,          ! 영역별 연직방향의 시작(surface) 격자점
+e_vert            = 33,  33,  33,         ! 영역별 연직방향의 끝(top) 격자점 (해상도)
+dx                = 18000, 6000, 2000,     ! x축 격자간격. ARW(in meters), NMM(in degrees)
+dy                = 18000, 6000, 2000,     ! y축 격자간격. ARW(in meters), NMM(in degrees)
+grid_id           = 1,     2,    3,    ! 영역 id
+parent_id         = 1,     1,    2,    ! 상위 영역의 id
+i_parent_start    = 1,     15    100,  !92,       ! 영역별 i-index(x축)의 상위영역 시작 격자점
+j_parent_start    = 1,     17,    35,  !53,       ! 영역별 j-index(y축)의 상위영역 시작 격자점
+parent_grid_ratio = 1,     3,     3,   ! 상위영역과의 격자비율. 홀수배로 설정하여야 함
+parent_time_step_ratio = 1,3,3,        ! 상위영역과의 적분시간간격 비율. 2배 이상을 권장함
+feedback          = 1,               ! 상위영역으로의 정보교환 유무. 0 = no feedback
+smooth_option     = 0,               ! feedback=1의 경우 smooth 방법
+                                         ! 0: no smoothing, 1: 1-2-1 smoothing, 
+                                         ! 2: smoothing-desmoothing (default)
+p_top_requested   = 5000,
+num_metgrid_levels = 32,
+num_metgrid_soil_levels = 4,
+use_levels_below_ground = .true.,
+!omdt = 1, 
+ocean_levels      = 30,              ! sf_ocean_physics=2 일 경우 연직 층수
+ocean_z                             =       5.,       15.,       25.,       35.,       45.,       55.,
+                                            65.,       75.,       85.,       95.,      105.,      115.,
+                                           125.,      135.,      145.,      155.,      165.,      175.,
+                                           185.,      195.,      210.,      230.,      250.,      270.,
+                                           290.,      310.,      330.,      350.,      370.,      390.
+ocean_t                             = 302.3493,  302.3493,  302.3493,  302.1055,  301.9763,  301.6818,
+                                       301.2220,  300.7531,  300.1200,  299.4778,  298.7443,  297.9194,
+                                       297.0883,  296.1443,  295.1941,  294.1979,  293.1558,  292.1136,
+                                       291.0714,  290.0293,  288.7377,  287.1967,  285.6557,  284.8503,
+                                       284.0450,  283.4316,  283.0102,  282.5888,  282.1674,  281.7461
+ocean_s                             =  34.0127,   34.0127,   34.0127,   34.3217,   34.2624,   34.2632,
+                                        34.3240,   34.3824,   34.3980,   34.4113,   34.4220,   34.4303,
+                                        34.6173,   34.6409,   34.6535,   34.6550,   34.6565,   34.6527,
+                                        34.6490,   34.6446,   34.6396,   34.6347,   34.6297,   34.6247,
+                                        34.6490,   34.6446,   34.6396,   34.6347,   34.6297,   34.6247
+! vortex를 따라서 nesting 영역을 자동으로 이동하기 위한 설정 :
+    !    이 설정을 사용하려면, WRF의 컴파일 시에 (3=vortex_following) 옵션으로 컴파일되어 있어야 함
+vortex_interval   = 15,  15,         ! vortex의 위치를 계산하는 간격
+max_vortex_speed  = 30,  30,         ! vortex의 위치를 알기 위한 vortex 반경을 계산하는데 사용
+corral_dist       = 10,  10,         ! 상위영역의 경계측으로 접근할 수 있는 최소한의 격자 수
+track_level       = 50000,           ! 추적되는 vortex가 위치한 곳의 압력(Pa)
+time_to_move      = 0.,  0.,         ! nesting 영역의 이동을 계산하는 시작 시간(분)
+/
+
+&physics
+mp_physics        = 6,   6,   6,       ! 미세물리 모수화기법: (cl=class,mo=moment,ic=ice)
+                                         !  0 = no microphysics,  1 = Kessler,
+                                         !  2 = Lin et al.,       3 = WSM 3-cl simple ic,
+                                         !  4 = WSM 5-cl,         5 = Ferrier (new Eta),
+                                         !  6 = WSM 6-cl graupel, 7 = Goddard 4-ic,
+                                         !  8 = Thompson,         9 = Mibrandt-Yau 2-mo,
+                                         ! 10 = Morrison,        11 = CAM 5.1,
+                                         ! 13 = SBU_YLIN,        14 = WDM 5-cl,
+                                         ! 16 = WDM 6-cl,        17 = NSSL 2-m 4-i,
+                                         ! 18 = NSSL 2-mo 4-ic with predicted CCN,
+                                         ! 19 = NSSL 1-mo 7-cl,  21 = NSSL 1-mo 6-cl,
+                                         ! 28 = aerosol-aware Thompson,
+                                         ! 30 = HUJI spectral bin,
+                                         ! 32 = HUJI spectral bin, full version,
+                                         ! 40 = Morrison (2 mo),
+                                         ! 50 = P3 1-category, 51=P3 + cloud water,
+                                         ! 95 = Ferrier (old Eta), 97 = Goddard GCE
+ra_lw_physics     = 1,   1,   1,       ! 장파복사 모수화기법:
+                                         !  0 = no lonwave radiation, 1 = RRTM,
+                                         !  3 = CAM,                  4 = RRTMG,
+                                         ! 14 = RRTMG-K from KIAPS,  24 = fast RRTMG,
+                                         !  5 = Goddard longwave,     7 = FLG (UCLA),
+                                         ! 31 = Earth Held-Suarez forcing,
+                                         ! 99 = GFDL (Eta) longwave
+ra_sw_physics     = 1,   1,   1,     ! 단파복사 모수화기법:
+                                         !  0 = no shortwave radiation, 1 = Dudhia,
+                                         !  2 = Goddard shortwave,      3 = CAM,
+                                         !  4 = RRTMG,       14 = RRTMG-K from KIAPS,
+                                         ! 24 = fast RRTMG,   5 = Goddard shortwave,
+                                         !  7 = FLG (UCLA),  99 = GFDL (Eta) longwave
+radt              = 18,  18,  18,       ! 복사물리 함수 호출 간격(분). dx(in km)와 동일 값 추천 
+sf_sfclay_physics = 1,   1,   1,       ! 표층 모수화기법:
+                                         !  0 = no surface-layer,
+                                         !  1 = Revised MM5 Monin-Obukhov,
+                                         !  2 = Monin-Obukhov,    3 = NCEP GFS (MMM only)
+                                         !  4 = QNSE,             5 = MYNN,
+                                         !  7 = Pleim-Xiu (ARW only),
+                                         ! 10 = TEMF (ARW only), 91 = Old MM5
+sf_surface_physics = 2,  2,  2,       ! 지면 모수화기법:
+                                         !  0 = no surface temp prediction
+                                         !  1 = thermal diffusion, 2 = Unified Noah LSM,
+                                         !  3 = RUC LSM,           4 = Noah-MP LSM,
+                                         !  5 = CLM4 from CAM,     7 = Pleim-Xiu LSM (ARW),
+                                         !  8 = SSiB
+sf_urban_physics  = 0,   0,   0,       ! urban canopy model 계산 유무
+                                         !  0 = no,                1 = Single-layer, UCM,
+                                         !  2 = Multi-layer, BEP,  3 = Multi-layer, BEM
+bl_pbl_physics    = 1,   1,   1,      ! 경계층 모수화기법:
+                                         !  0 = no boundary-layer, 1 = YSU,
+                                         !  2 = Mellor-Yamada-Janjic TKE,
+                                         !  3 = Hybrid EDMF GFS (NMM only),
+                                         !  4 = Eddy-diff. Mass Flux, QNSE PBL,
+                                         !  5 = MYNN L2.5 TKE,     6 = MYNN 3rd level TKE,
+                                         !  7 = ACM2 PBL (ARW),    8 = BouLac PBL,
+                                         !  9 = UW BL from CAM5,  10 = TEMF,
+                                         ! 11 = Shin-Hong PBL,    12 = GBM (ARW only),
+                                         ! 93 = 2015 GFS (NMM only), 99 = MRF
+bldt              = 0,   0,  0,          ! 경계층 물리모수화 함수 호출 간격 (분)
+cu_physics        = 1,   0,  0,          ! 적운 물리모수화 기법: (참고: 고해상도에서는 사용하지 않음)
+                                         ! (SAS=Simplified Arakawa-Schubert,K-F=Kain-Fritsch)
+                                         !  0: no cumuls,           1: K-F (new Eta),
+                                         !  2: Betts-Miller-Janjic, 3: Grell-Freitas ens.,
+                                         !  4: Scale-aware GFS SAS, 5: Grell 3D ens.,
+                                         !  6: Modified Tiedtke (ARW only),
+                                         !  7: Zhang-McFarlane,    10: Modfied K-F,
+                                         ! 11: Multi-scale K-F,    14: modified GFS SAS,
+                                         ! 16: newer Tiedtke,      94: 2015 GFS SAS (HWRF),
+                                         ! 95: previous GFS SAS (HWRF),
+                                         ! 96: previous NEW GFS SAS from YSU (ARW only),
+                                         ! 93: Grell-Devenyi ens., 99: previous K-F
+cudt              = 0,   0,   0,         ! 적운 물리모수화 함수 호출 간격 (분)
+isfflx            = 1,                   ! 표층으로부터의 열속과 습윤속 처리 
+                                         !   (sf_sfclay_physics = 1,5,7,11의 경우에만 적용됨)
+                                         !  1: 표층으로부터의 플럭스 사용
+                                         !  0: 표층으로부터 플럭스 없음
+                                         !    with bl_pbl_physics=0 this uses tke_drag_coeff.
+                                         !    and tke_heat_flux in vertical diff.
+                                         !  2: use drag from sf_sfclay_physics and heat flux
+                                         !    from tke_heat_flux with bl_pbl_physics=0
+ifsnow            = 0,                   ! snow-cover 효과 (sf_surface_physics=1과 함께 사용)
+                                         !  1: 효과 적용,     0: 효과 없음
+icloud            = 1,                   ! cloud effect to the optical depth in radiation
+                                         ! (only works for ra_sw_physics=1,4 
+                                         !             and ra_lw_physics=1,4)
+                                         !  1: 효과 적용 (cloud fraction = 1), 0: 효과 없음,
+                                         !  2: 효과 적용 (cloud fraction = 2),
+                                         !  3: 효과 적용 (cloud fraction = 3)
+surface_input_source = 1,                ! landuse 와 soil category 자료의 출처
+                                         !  1: WPS/geogrid, dominant categories는 재계산  
+                                         !  2: GRIB from another model
+                                         !  3: WPS/geogrid, dominant categories 사용
+num_soil_layers   = 4,                   ! LSM(지면모델)의 soil layers 갯수
+                                         !  5: thermal diffusion, 4: Noah LSM
+                                         !  6 or 9: RUC LSM,     10: CLM4 LSM
+                                         !  2: Pleim-Xu LSM,      3: SSiB LSM
+!num_land_cat       = 28,
+!sst_update       = 0                    ! 해양모형을 사용하지 않고 SST 시계열 자료를 입력으로 할 경우
+    !                                    ! (0:no, 1:yes)
+sf_ocean_physics  = 2,                   ! 해양모형 적분 계산
+                                         !  0: no, 1: 1d mixed layer, 
+                                         !  2: 3D PWP, no bathymetry
+isftcflx          = 2,                   ! 열대 폭풍 실험을 위한 Ck와 Cd 선택
+                                         ! For sf_sfclay=1 & 11,
+                                         !   0: default, 1: Donelan Cd + const z0q
+                                         !   2: Donelan Cd + Garratt
+                                         ! For sf_sfclay=5
+                                         !   0: z0, zt, zq from COARE3.0 (default)
+                                         !   1: z0 from Davis et al, zt & zq from COARE3.0
+                                         !   2: z0 from Davis et al, zt & zq from Garratt
+do_radar_ref      = 1,                   ! 1: allows radar reflectivity to be computed 
+                                         !    using mp-scheme-specific parameters.
+                                         !    Works for mp_physics=2,4,6,7,8,10,14,16,28
+                                         
+/
+   
+&fdda                                 ! Data Assimilation 관련 섹션
+/
+   
+&dynamics
+diff_opt           = 1,   1,   1,         ! 난류 및 혼합
+                                         !  0: no turbulence or explicit,
+                                         !  1: evaluates 2nd order diffusion term
+                                         !     실제사례에 추천
+                                         !  2: evaluate mixing terms
+km_opt             = 4,   4,    4,     ! eddy coefficient
+                                         !  참고) dx > 2km 에서 2번과 3번은 추천하지 않음
+                                         !  1: constant,   2: 1.5 order TKE closure (3D)
+                                         !  3: Smagorinsky first order closure (3D)
+                                         !  4: horiz. Smagorinsky first order closure
+                                         !     실제사례에 추천
+damp_opt           = 0,                  ! upper level damping flag
+                                         !  0: without damping,
+                                         !  1: diffusive damping (실제사례에 추천), 
+                                         !  2: Rayleigh damping,
+                                         !  3: w-Rayleigh damping (실제사례에 추천)
+dampcoef           = 0.2,  0.2,  0.2,   ! damping coefficient
+zdamp              = 5000.,5000.,5000.,    ! damping depth(m) from model top
+w_damping          = 0,              ! vertical velocity damping flag 
+                                         !          (for operational use)
+                                         !  0: without damping, 1: with damping
+khdif              = 0,    0,        ! horiz. diff. const. (m^2/s)
+                                         !   보통은 0.1*dx(in meter) 사용
+kvdif              = 0,    0,        ! vert. diff. const. (m^2/s)
+                                         !   보통은 100.0을 사용
+non_hydrostatic    = .true.,.true.,  ! (비)정수압 가정의 사용 유무
+moist_adv_opt      = 1,    1,        ! for moisture
+scalar_adv_opt     = 1,    1,        ! for scalars
+/
+   
+&bdy_control
+spec_bdy_width     = 10,             ! num of rows for specified boundary value nudging
+spec_zone          = 1,              ! num of points in specified zone
+relax_zone         = 9,              ! num of points in relaxation zone
+specified          = .true.,.false.,.false., ! specified B.C. (only can be used for domain 1)
+nested             = .false.,.true.,.true., ! nested B.C. (must be used for nests) 
+/
+
+&grib2
+/
+
+&namelist_quilt
+nio_tasks_per_group = 0,
+nio_groups = 0,
+/
