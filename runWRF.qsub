@@ -1,0 +1,53 @@
+#!/bin/bash 
+#### For the distributed memory versions of the code that we use at CHPC, mpiprocs should be equal to ncpus
+#### Here we have selected the maximum resources available to a regular CHPC user
+####  Obviously provide your own project identifier
+#### For your own benefit, try to estimate a realistic walltime request.  Over-estimating the 
+#### wallclock requirement interferes with efficient scheduling, will delay the launch of the job,
+#### and ties up more of your CPU-time allocation untill the job has finished.
+#PBS -l select=10:ncpus=24:mpiprocs=24 -q normal -P Idai20193154
+#PBS -l walltime=168:00:00
+#PBS -o /home/username/scratch/WRFV3_test/run/stdout
+#PBS -e /home/username/scratch/WRFV3_test/run/stderr
+#PBS -m abe
+#PBS -M username@unseenuniversity.ac.za
+### Source the WRF-4.1.1 environment:
+export WRFDIR=/apps/chpc/earth/WRF-4.1.1-pnc-impi
+. $WRFDIR/setWRF
+# Set the stack size unlimited for the intel compiler
+ulimit -s unlimited
+##### Running commands
+# Set PBS_JOBDIR to where YOUR simulation will be run
+export PBS_JOBDIR=/home/username/scratch/WRFV3_test/run
+# First though, change to YOUR WPS directory
+export WPS_DIR=/export/home/username/scratch/WPS_test
+cd $WPS_DIR
+# Clean the directory of old files
+rm FILE*
+rm GRIB*
+rm geo_em*
+rm met_em*
+# Link to the grib files, obviously use the location of YOUR grib files
+./link_grib.csh ../DATA_test/GFS_* 
+# Run geogrid.exe
+geogrid.exe &> geogrid.out
+# Run ungrib.exe
+ungrib.exe &> ungrib.out
+# Run metgrid.exe
+metgrid.exe &> metgrid.out
+# Now change to the main job directory
+cd $PBS_JOBDIR
+# Link the met_em* data files into this directory
+ln -s $WPS_DIR/met_em* ./
+# Figure out how many processes to use for wrf.exe
+nproc=`cat $PBS_NODEFILE | wc -l`
+# Now figure out how many nodes are being used
+cat $PBS_NODEFILE | sort -u > hosts
+# Number of nodes to be used for real.exe
+nnodes=`cat hosts | wc -l`
+# Run real.exe with one process per node
+exe=$WRFDIR/WRF/run/real.exe
+mpirun -np $nnodes -machinefile hosts $exe &> real.out
+# Run wrf.exe with the full number of processes
+exe=$WRFDIR/WRF/run/wrf.exe
+mpirun -np $nproc $exe &> wrf.out
